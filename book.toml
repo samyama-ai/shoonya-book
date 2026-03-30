@@ -6,6 +6,6 @@ title = "Building Shoonya: The Architecture of a Research-Driven Language Model"
 
 [output.html]
 git-repository-url = "https://github.com/VaidhyaMegha/shoonya"
-edit-url-template = "https://github.com/VaidhyaMegha/shoonya-book/edit/main/{path}"
+edit-url-template = "https://github.com/samyama-ai/shoonya-book/edit/main/{path}"
 additional-js = []
 additional-css = []
