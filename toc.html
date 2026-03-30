@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- sidebar iframe generated using mdBook
+
+        This is a frame, and not included directly in the page, to control the total size of the
+        book. The TOC contains an entry for each page, so if each page includes a copy of the TOC,
+        the total size of the page becomes O(n**2).
+
+        The frame is only used as a fallback when JS is turned off. When it's on, the sidebar is
+        instead added to the main page by `toc.js` instead. The JavaScript mode is better
+        because, when running in a `file:///` URL, the iframed page would not be Same-Origin as
+        the rest of the page, so the sidebar and the main page theme would fall out of sync.
+        -->
+        <meta charset="UTF-8">
+        <meta name="robots" content="noindex">
+        <!-- Custom HTML head -->
+        <script type="module">
+            import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'dark'
+            });
+        
+            document.addEventListener('DOMContentLoaded', () => {
+                // mdBook renders ```mermaid as <pre><code class="language-mermaid">...</code></pre>
+                const elements = document.querySelectorAll('code.language-mermaid');
+                elements.forEach(element => {
+                    const pre = element.parentElement;
+                    const text = element.textContent;
+                    const div = document.createElement('div');
+                    div.className = 'mermaid';
+                    div.textContent = text;
+                    pre.replaceWith(div);
+                });
+        
+                // Now tell Mermaid to render all the newly created divs
+                mermaid.run({
+                    nodes: document.querySelectorAll('.mermaid'),
+                });
+            });
+        </script>
+        <style>
+            .mermaid {
+                background-color: transparent !important;
+                display: flex;
+                justify-content: center;
+                margin: 20px 0;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body class="sidebar-iframe-inner">
+        <ol class="chapter"><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="preface.html" target="_parent">Preface</a></span></li><li class="chapter-item expanded "><li class="part-title">Part I: Foundations</li></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="transformers.html" target="_parent"><strong aria-hidden="true">1.</strong> What is a Transformer?</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="attention.html" target="_parent"><strong aria-hidden="true">2.</strong> Attention Mechanisms</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="positional_encodings.html" target="_parent"><strong aria-hidden="true">3.</strong> Positional Encodings</a></span></li><li class="chapter-item expanded "><li class="part-title">Part II: Model Architecture</li></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="shoonya_architecture.html" target="_parent"><strong aria-hidden="true">4.</strong> The Shoonya Architecture</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="moe.html" target="_parent"><strong aria-hidden="true">5.</strong> Mixture of Experts (MoE)</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="mamba_ssm.html" target="_parent"><strong aria-hidden="true">6.</strong> Mamba &amp; State Space Models</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="feed_forward.html" target="_parent"><strong aria-hidden="true">7.</strong> Feed-Forward Networks (SwiGLU)</a></span></li><li class="chapter-item expanded "><li class="part-title">Part III: Training</li></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="training_pipeline.html" target="_parent"><strong aria-hidden="true">8.</strong> Training Pipeline</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="schedulers.html" target="_parent"><strong aria-hidden="true">9.</strong> Learning Rate Schedulers</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="memory_efficient_training.html" target="_parent"><strong aria-hidden="true">10.</strong> Memory-Efficient Training</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="data_pipeline.html" target="_parent"><strong aria-hidden="true">11.</strong> Data Pipeline</a></span></li><li class="chapter-item expanded "><li class="part-title">Part IV: Inference &amp; Serving</li></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="kv_cache.html" target="_parent"><strong aria-hidden="true">12.</strong> KV Cache &amp; Quantization</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="speculative_decoding.html" target="_parent"><strong aria-hidden="true">13.</strong> Speculative Decoding (Medusa)</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="quantization.html" target="_parent"><strong aria-hidden="true">14.</strong> Quantization (GPTQ, AWQ, GGUF)</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="vllm_serving.html" target="_parent"><strong aria-hidden="true">15.</strong> vLLM &amp; Production Serving</a></span></li><li class="chapter-item expanded "><li class="part-title">Part V: Embeddings</li></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="what_is_embedding.html" target="_parent"><strong aria-hidden="true">16.</strong> What is an Embedding Model?</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="embedding_sota.html" target="_parent"><strong aria-hidden="true">17.</strong> State of the Art (2026)</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="embedding_gaps.html" target="_parent"><strong aria-hidden="true">18.</strong> Unsolved Problems &amp; Gaps</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="graph_aware_embeddings.html" target="_parent"><strong aria-hidden="true">19.</strong> Graph-Aware Embeddings</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="samyama_embedding.html" target="_parent"><strong aria-hidden="true">20.</strong> Building a Samyama Embedding Model</a></span></li><li class="chapter-item expanded "><li class="part-title">Appendices</li></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="glossary.html" target="_parent"><strong aria-hidden="true">21.</strong> Glossary</a></span></li><li class="chapter-item expanded "><span class="chapter-link-wrapper"><a href="references.html" target="_parent"><strong aria-hidden="true">22.</strong> Research References</a></span></li></ol>
+    </body>
+</html>
