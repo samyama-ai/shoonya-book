@@ -39,5 +39,6 @@
 
 # Appendices
 
+- [Frequently Asked Questions](./faq.md)
 - [Glossary](./glossary.md)
 - [Research References](./references.md)
