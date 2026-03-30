@@ -69,10 +69,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e2a672a3.js";
+            window.path_to_searchindex_js = "searchindex-b8a92137.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-9b109977.js"></script>
+        <script src="toc-7336fab5.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1024,6 +1024,135 @@ ORDER BY score DESC, sideEffects ASC
 <li><strong>Multi-modal</strong>: Should the same model handle text + graph + images (for medical imaging KGs)?</li>
 </ol>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="frequently-asked-questions"><a class="header" href="#frequently-asked-questions">Frequently Asked Questions</a></h1>
+<h2 id="foundations"><a class="header" href="#foundations">Foundations</a></h2>
+<h3 id="what-does-transformer-mean-why-that-name"><a class="header" href="#what-does-transformer-mean-why-that-name">What does “transformer” mean? Why that name?</a></h3>
+<p>The 2017 Google paper “Attention Is All You Need” introduced the architecture. It’s called a “Transformer” because it <strong>transforms</strong> one sequence of representations into another through <strong>self-attention</strong> — a mechanism where every token looks at every other token to decide what’s important.</p>
+<p>Before transformers, we had RNNs/LSTMs that processed tokens <strong>one at a time</strong>, sequentially. The transformer’s breakthrough was processing <strong>all tokens simultaneously</strong>, making it massively parallelizable on GPUs while capturing long-range dependencies far better.</p>
+<h3 id="why-were-encoder-only-transformers-like-bert-needed"><a class="header" href="#why-were-encoder-only-transformers-like-bert-needed">Why were encoder-only transformers (like BERT) needed?</a></h3>
+<p>The original transformer had both an encoder and decoder — designed for translation (encode English → decode to French). But researchers realized <strong>not every task needs text generation</strong>. Many tasks are about understanding:</p>
+<ul>
+<li>Sentiment classification (“Is this review positive?”)</li>
+<li>Semantic similarity (“Are these sentences related?”)</li>
+<li>Entity recognition (“What does ‘he’ refer to?”)</li>
+<li>Document retrieval (“Find relevant documents”)</li>
+</ul>
+<p>For these, you only need the <strong>encoder</strong> — the part that reads the full input bidirectionally and produces a rich representation. The decoder (generation) is unnecessary overhead. So BERT (2018) threw away the decoder and trained just the encoder, producing models perfect for classification, similarity, search, and embeddings.</p>
+<h3 id="what-are-the-three-transformer-families"><a class="header" href="#what-are-the-three-transformer-families">What are the three transformer families?</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Architecture</th><th>What It Sees</th><th>Good At</th><th>Examples</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Encoder-only</strong></td><td>All tokens (bidirectional)</td><td>Understanding, classification, embeddings</td><td>BERT, RoBERTa, BGE-M3</td></tr>
+<tr><td><strong>Decoder-only</strong></td><td>Past tokens only (causal)</td><td>Text generation</td><td>GPT, Llama, Shoonya</td></tr>
+<tr><td><strong>Encoder-Decoder</strong></td><td>Both</td><td>Translation, summarization</td><td>T5, BART, original Transformer</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="embeddings"><a class="header" href="#embeddings">Embeddings</a></h2>
+<h3 id="is-an-embedding-model-essentially-an-llm--a-neural-network-with-transformers-or-just-a-neural-network"><a class="header" href="#is-an-embedding-model-essentially-an-llm--a-neural-network-with-transformers-or-just-a-neural-network">Is an embedding model essentially an LLM / a neural network with transformers, or just a neural network?</a></h3>
+<p>An embedding model is a <strong>neural network</strong> — but not necessarily a full LLM. It’s a spectrum:</p>
+<ul>
+<li><strong>Simplest</strong>: Word2Vec (2013) — a shallow 2-layer network. No transformers at all.</li>
+<li><strong>Middle</strong>: BERT, BGE-M3 — transformer-based but <strong>not generative</strong>. Can’t produce text. Trained to output dense vectors.</li>
+<li><strong>Current SOTA</strong>: Take a full LLM (Mistral-7B, Qwen3-8B), <strong>strip the generation head</strong>, flip to bidirectional attention, add pooling, fine-tune with contrastive loss. These are literally LLMs repurposed as embedding models.</li>
+</ul>
+<p>So modern SOTA embedding models <strong>are</strong> transformers, and the best ones <strong>are</strong> LLMs with the generation head removed. But conceptually, an embedding model is any neural network that produces a meaningful vector representation.</p>
+<h3 id="whats-the-difference-between-an-llm-and-an-embedding-model"><a class="header" href="#whats-the-difference-between-an-llm-and-an-embedding-model">What’s the difference between an LLM and an embedding model?</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th>LLM</th><th>Embedding Model</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Output</strong></td><td>Next token (probability distribution over vocabulary)</td><td>Single fixed-size vector (e.g., 4096 floats)</td></tr>
+<tr><td><strong>Use</strong></td><td>Generate text</td><td>Compare similarity between inputs</td></tr>
+<tr><td><strong>Attention</strong></td><td>Causal (sees only past tokens)</td><td>Bidirectional (sees full input)</td></tr>
+<tr><td><strong>Training</strong></td><td>Next-token prediction</td><td>Contrastive learning (similar pairs close, dissimilar far)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="should-we-build-our-own-embedding-model"><a class="header" href="#should-we-build-our-own-embedding-model">Should we build our own embedding model?</a></h3>
+<p><strong>Yes — but scope it narrowly.</strong> Don’t try to top the general-purpose MTEB leaderboard. Build a <strong>graph-aware, domain-specialized</strong> model that:</p>
+<ol>
+<li><strong>Understands Cypher query semantics</strong> — no existing model does this</li>
+<li><strong>Captures graph topology</strong> (node relationships, edge types) alongside text</li>
+<li><strong>Is optimized for Samyama’s HNSW index</strong></li>
+<li><strong>Covers our verticals</strong> (biomedical, clinical trials, cricket, industrial)</li>
+</ol>
+<p>Use an existing open model (Qwen3-Embedding-8B, Apache 2.0) as a baseline for general text, and build the graph-aware layer on top. This gives us unique value without reinventing the wheel.</p>
+<h3 id="what-is-the-path-to-creating-an-embedding-model"><a class="header" href="#what-is-the-path-to-creating-an-embedding-model">What is the path to creating an embedding model?</a></h3>
+<p>The modern recipe is <strong>two-stage fine-tuning</strong> of a decoder-only LLM:</p>
+<ol>
+<li><strong>Pick a backbone</strong> — Shoonya or an open base (Qwen3-8B, Llama-3.1-8B)</li>
+<li><strong>Remove the causal attention mask</strong> → bidirectional attention</li>
+<li><strong>Add latent attention pooling</strong> (NV-Embed-v2’s innovation)</li>
+<li><strong>Stage 1</strong>: Contrastive pre-training on ~50-150M synthetic pairs using MNRL</li>
+<li><strong>Stage 2</strong>: Fine-tune on curated domain-specific data with hard negatives</li>
+<li><strong>Train with Matryoshka Representation Learning</strong> for flexible dimensionality (128-4096 dims)</li>
+<li>Evaluate on MTEB + domain-specific benchmarks</li>
+</ol>
+<h3 id="what-are-the-biggest-unsolved-gaps-in-embedding-models"><a class="header" href="#what-are-the-biggest-unsolved-gaps-in-embedding-models">What are the biggest unsolved gaps in embedding models?</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Gap</th><th>Why It Matters</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Graph structure</strong></td><td>No model captures node-edge-node relationships or typed edges</td></tr>
+<tr><td><strong>Cypher understanding</strong></td><td>Zero research on embedding Cypher queries into semantic space</td></tr>
+<tr><td><strong>Numeracy</strong></td><td>Models can’t encode numbers accurately (critical for clinical trials, cricket stats)</td></tr>
+<tr><td><strong>Negation</strong></td><td>“Did NOT respond” ≈ “responded” in embedding space</td></tr>
+<tr><td><strong>Compositional queries</strong></td><td>Multi-hop reasoning collapses in single-vector space</td></tr>
+<tr><td><strong>Retrieval limits</strong></td><td>Mathematically proven fundamental recall bounds tied to dimensionality</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="is-there-a-need-for-a-unique-embedding-model-for-graph-databases"><a class="header" href="#is-there-a-need-for-a-unique-embedding-model-for-graph-databases">Is there a need for a unique embedding model for graph databases?</a></h3>
+<p><strong>Yes — this is the biggest opportunity.</strong> No existing embedding model combines text understanding + graph structure + Cypher query semantics. Specifically:</p>
+<ul>
+<li><strong>Current approach</strong>: Embed node text properties independently → lose all relational structure</li>
+<li><strong>Neo4j</strong>: Relies on external embedding APIs — no native embedding model</li>
+<li><strong>No model understands Cypher</strong>: An embedding that maps natural language questions AND Cypher patterns into the same space would be a first</li>
+</ul>
+<p>A Samyama-native embedding model with a Shoonya backbone + GraphSAGE for structural encoding would give us a genuine competitive moat: a database that <strong>natively generates embeddings understanding both content and structure</strong>.</p>
+<h3 id="what-is-the-sota-in-embedding-models-march-2026"><a class="header" href="#what-is-the-sota-in-embedding-models-march-2026">What is the SOTA in embedding models (March 2026)?</a></h3>
+<p>The top models on MTEB:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Rank</th><th>Model</th><th>Params</th><th>Open?</th><th>Key Innovation</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Gemini Embedding 001</td><td>?</td><td>No</td><td>MRL, proprietary distillation</td></tr>
+<tr><td>2</td><td>NV-Embed-v2</td><td>7B</td><td>Yes (CC-BY-NC)</td><td>Latent attention pooling</td></tr>
+<tr><td>3</td><td>Qwen3-Embedding-8B</td><td>8B</td><td>Yes (Apache 2.0)</td><td>150M synthetic pairs, SLERP merging</td></tr>
+<tr><td>4</td><td>BGE-en-ICL</td><td>7B</td><td>Yes</td><td>In-context learning for embeddings</td></tr>
+<tr><td>5</td><td>Llama-Embed-Nemotron-8B</td><td>8B</td><td>Yes</td><td>Full open recipe</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Best open option for commercial use</strong>: Qwen3-Embedding-8B (Apache 2.0).</p>
+<p>All top-5 models follow the same recipe: take a 7-8B decoder-only LLM, remove causal mask, add latent attention pooling, two-stage contrastive training with MRL. The differentiator is now <strong>training data quality</strong> and <strong>domain specialization</strong>.</p>
+<hr>
+<h2 id="architecture--training"><a class="header" href="#architecture--training">Architecture &amp; Training</a></h2>
+<h3 id="why-does-shoonya-use-moe-mixture-of-experts"><a class="header" href="#why-does-shoonya-use-moe-mixture-of-experts">Why does Shoonya use MoE (Mixture of Experts)?</a></h3>
+<p>MoE achieves <strong>4-8x model capacity</strong> while keeping compute sparse — each token only activates 1-2 experts out of many. This means you get a much larger model (more knowledge capacity) without proportionally increasing inference cost. It’s the same approach used by Mixtral, GPT-4, and other frontier models.</p>
+<h3 id="why-use-mambassm-alongside-transformers"><a class="header" href="#why-use-mambassm-alongside-transformers">Why use Mamba/SSM alongside transformers?</a></h3>
+<p>Attention is <strong>quadratic</strong> in sequence length — doubling the input quadruples the computation. Mamba (Selective State Space Models) processes sequences in <strong>linear time</strong>, making it 5x faster for long sequences. Shoonya uses a hybrid approach: transformer blocks for tasks needing full attention, Mamba blocks for efficient long-range processing.</p>
+<h3 id="what-is-speculative-decoding-and-why-does-it-help"><a class="header" href="#what-is-speculative-decoding-and-why-does-it-help">What is speculative decoding and why does it help?</a></h3>
+<p>LLMs generate tokens <strong>one at a time</strong> — each token requires a full forward pass. Speculative decoding (Medusa) adds multiple small “draft heads” that predict several future tokens simultaneously. The main model then <strong>verifies</strong> these predictions in parallel. When predictions are correct (which they often are for common patterns), you get 2.2-3.6x speedup with no quality loss.</p>
+<h3 id="why-quantize-models"><a class="header" href="#why-quantize-models">Why quantize models?</a></h3>
+<p>A 7B parameter model at FP16 needs ~14GB of memory. At 4-bit quantization, that drops to ~3.5GB — fitting on a single consumer GPU or even Apple Silicon. The three methods Shoonya supports:</p>
+<ul>
+<li><strong>GPTQ</strong>: Uses Hessian information for minimal quality loss</li>
+<li><strong>AWQ</strong>: Protects the most important weights based on activation patterns</li>
+<li><strong>GGUF</strong>: Format for llama.cpp CPU inference — run on any machine</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="glossary"><a class="header" href="#glossary">Glossary</a></h1>
 <dl>
 <dt id="attention"><a class="header" href="#attention"><strong>Attention</strong></a></dt>
@@ -1112,7 +1241,7 @@ ORDER BY score DESC, sideEffects ASC
 <li><strong>GPTQ: Accurate Post-Training Quantization</strong> (Frantar et al., 2023)</li>
 <li><strong>AWQ: Activation-aware Weight Quantization</strong> (Lin et al., 2024)</li>
 </ul>
-<h2 id="embeddings"><a class="header" href="#embeddings">Embeddings</a></h2>
+<h2 id="embeddings-1"><a class="header" href="#embeddings-1">Embeddings</a></h2>
 <ul>
 <li><strong>NV-Embed v2</strong>: <a href="https://arxiv.org/abs/2405.17428">arxiv.org/abs/2405.17428</a> — ICLR 2025, latent attention pooling</li>
 <li><strong>Qwen3-Embedding</strong>: <a href="https://arxiv.org/pdf/2506.05176">arxiv.org/pdf/2506.05176</a> — Synthetic data + SLERP merging</li>
